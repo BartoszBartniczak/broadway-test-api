@@ -1,0 +1,54 @@
+web:
+  image: nginx:latest
+  ports:
+    - "8088:80"
+  links:
+    - php
+  volumes:
+    - ./:/app
+    - ./docker/nginx/broadway-test-api.conf:/etc/nginx/conf.d/broadway-test-api.conf
+    - ./docker/nginx/logs:/var/log/nginx
+
+php:
+  build: docker/php-fpm
+  links:
+    - elastic
+    - postgres
+  volumes:
+    - ./:/app
+    - ./docker/php-fpm/php.ini:/usr/local/etc/php/php.ini
+  working_dir: /app
+
+elastic:
+  image: elasticsearch:latest
+  ports:
+    - "9200:9200"
+  volumes:
+    - ./docker/elasticsearch/data:/usr/share/elasticsearch/data
+
+logstash:
+    build: docker/logstash
+    links:
+      - elastic
+    volumes_from:
+      - web
+    volumes:
+      - ./docker/logstash/config:/config-dir
+
+kibana:
+  image: kibana:latest
+  ports:
+    - "5601:5601"
+  links:
+    - elastic:elasticsearch
+
+postgres:
+  image: postgres:9
+  ports:
+    - "5432:5432"
+  environment:
+    POSTGRES_PASSWORD: broadway-test
+    POSTGRES_USER: root
+    POSTGRES_DB: broadway-test
+  volumes:
+    - ./docker/postgres/data:/var/lib/postgresql/data

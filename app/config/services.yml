@@ -1,0 +1,42 @@
+# Learn more about services, parameters and containers at
+# http://symfony.com/doc/current/service_container.html
+parameters:
+#    parameter_name: value
+
+services:
+#    service_name:
+#        class: AppBundle\Directory\ClassName
+#        arguments: ["@another_service_name", "plain_value", "%parameter_name%"]
+  basic_user_controller:
+    class: BartoszBartniczak\Demo\Application\Controller\UserController
+    arguments: ["@uuid_generator", "@command_bus", "@user_repository"]
+
+  app.users_controller:
+    class: AppBundle\Controller\UsersController
+    arguments: ["@basic_user_controller"]
+
+  uuid_generator:
+    class: BartoszBartniczak\Demo\Application\Service\RamseyUUIDGeneratorAdapter
+
+  command_bus:
+    class: BartoszBartniczak\Demo\Application\Service\BroadwayCommandBusAdapter
+    arguments: ["@broadway.command_handling.command_bus"]
+
+  user_repository:
+    class: BartoszBartniczak\Demo\Application\Service\Repository\UserRepository
+    arguments: ["@broadway.event_store", "@broadway.event_handling.event_bus"]
+
+  app.user.commandhandler:
+    class: BartoszBartniczak\Demo\Application\Service\CommandHandler\UserCommandHandler
+    arguments: ["@domain.user.commandhandler"]
+    tags:
+      - {name: broadway.command_handler}
+
+  domain.user.commandhandler:
+    class: BartoszBartniczak\Demo\Domain\Model\User\Command\CommandHandler
+    arguments: ["@user_repository", "@domain.repository.user.unique_user_email_checker"]
+
+
+  domain.repository.user.unique_user_email_checker:
+    class: BartoszBartniczak\Demo\Domain\Service\Repository\User\UniqueUserEmailCheckerService
+    arguments: ["@user_repository"]
