@@ -34,7 +34,8 @@
     "bartoszbartniczak/broadway-test": "dev-master",
     "friendsofsymfony/rest-bundle": "^2.1",
     "broadway/broadway-bundle": "^0.2",
-    "broadway/event-store-dbal": "^0.1.2"
+    "broadway/event-store-dbal": "^0.1.2",
+    "broadway/read-model-elasticsearch": "^0.2.0"
   },
   "require-dev": {
     "sensio/generator-bundle": "^3.0",

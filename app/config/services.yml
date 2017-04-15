@@ -10,7 +10,7 @@ services:
   basic_user_controller:
     class: BartoszBartniczak\Demo\Application\Controller\UserController
     arguments: ["@uuid_generator", "@command_bus", "@user_repository"]
-
+#
   app.users_controller:
     class: AppBundle\Controller\UsersController
     arguments: ["@basic_user_controller"]
@@ -28,15 +28,28 @@ services:
 
   app.user.commandhandler:
     class: BartoszBartniczak\Demo\Application\Service\CommandHandler\UserCommandHandler
-    arguments: ["@domain.user.commandhandler"]
+    arguments: ["@domain.user.command_handler"]
     tags:
       - {name: broadway.command_handler}
 
-  domain.user.commandhandler:
+  domain.user.command_handler:
     class: BartoszBartniczak\Demo\Domain\Model\User\Command\CommandHandler
     arguments: ["@user_repository", "@domain.repository.user.unique_user_email_checker"]
 
 
   domain.repository.user.unique_user_email_checker:
     class: BartoszBartniczak\Demo\Domain\Service\Repository\User\UniqueUserEmailCheckerService
-    arguments: ["@user_repository"]
+    arguments: ["@application.read_model.user.repository.list_of_registered_emails"]
+
+  application.read_model.user.repository.list_of_registered_emails:
+    class: Broadway\ReadModel\ReadModel
+    factory_service: "@broadway.read_model.repository_factory"
+    factory_method: create
+    arguments: ["user.list_of_registered_email", "BartoszBartniczak\\Demo\\Application\\ReadModel\User\\ListOfRegisteredEmails"]
+
+
+#  application.read_model.user.list_of_registered_emails:
+#    class: BartoszBartniczak\Demo\Application\ReadModel\User\ListOfRegisteredEmails
+#    factory_service: "@broadway.read_model.repository_factory"
+#    factory_method: create
+#    arguments: ["user.list_of_registered_email", "BartoszBartniczak\\Demo\\Application\\ReadModel\User\\ListOfRegisteredEmails"]
