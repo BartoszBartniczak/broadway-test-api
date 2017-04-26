@@ -36,20 +36,17 @@ services:
     class: BartoszBartniczak\Demo\Domain\Model\User\Command\CommandHandler
     arguments: ["@user_repository", "@domain.repository.user.unique_user_email_checker"]
 
-
   domain.repository.user.unique_user_email_checker:
     class: BartoszBartniczak\Demo\Domain\Service\Repository\User\UniqueUserEmailCheckerService
-    arguments: ["@application.read_model.user.repository.list_of_registered_emails"]
+    arguments: ["@application.read_model.user.list_of_registered_emails"]
 
-  application.read_model.user.repository.list_of_registered_emails:
-    class: Broadway\ReadModel\ReadModel
-    factory_service: "@broadway.read_model.repository_factory"
-    factory_method: create
-    arguments: ["user.list_of_registered_email", "BartoszBartniczak\\Demo\\Application\\ReadModel\User\\ListOfRegisteredEmails"]
+  application.read_model.user.list_of_registered_emails:
+    class: Broadway\ReadModel\ElasticSearch\ElasticSearchRepository
+    factory: 'broadway.read_model.elasticsearch.repository_factory:create'
+    arguments: [ "user.list_of_registered_email", "BartoszBartniczak\\Demo\\Application\\ReadModel\\User\\ListOfRegisteredEmails"]
 
-
-#  application.read_model.user.list_of_registered_emails:
-#    class: BartoszBartniczak\Demo\Application\ReadModel\User\ListOfRegisteredEmails
-#    factory_service: "@broadway.read_model.repository_factory"
-#    factory_method: create
-#    arguments: ["user.list_of_registered_email", "BartoszBartniczak\\Demo\\Application\\ReadModel\User\\ListOfRegisteredEmails"]
+  application.projector.user.list_of_registered_emails:
+    class: BartoszBartniczak\Demo\Application\ReadModel\User\ListOfRegisteredEmailsProjector
+    tags:
+      - {name: broadway.domain.event_listener}
+    arguments: ["@application.read_model.user.list_of_registered_emails"]

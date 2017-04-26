@@ -99,7 +99,7 @@ broadway:
         elasticsearch:
             hosts:
                 # Default:
-                - elastica:9200
+                - elastic:9200
     serializer:
         payload:              broadway.simple_interface_serializer
         readmodel:            broadway.simple_interface_serializer
